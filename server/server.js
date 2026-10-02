@@ -8,6 +8,15 @@ dotenv.config();
 
 const app = express();
 
+//health check: Render lo usa para confirmar que el servicio está vivo
+app.get("/health", (_req, res) => {
+  const states = ["desconectado", "conectado", "conectando", "desconectando"];
+  res.status(200).json({
+    status: "ok",
+    mongo: states[mongoose.connection.readyState] || "desconocido",
+  });
+});
+
 //servir el frontend (index.html) para que el túnel muestre el chat
 app.use(
   express.static(path.join(__dirname, "../frontend"), {
@@ -92,6 +101,6 @@ io.on("connection", (socket) => {
 });
 
 //inicio del servidor
-http.listen(3000, () => {
-  console.log("Server Running");
+http.listen(process.env.PORT || 3000, () => {
+  console.log("Server Running on port " + (process.env.PORT || 3000));
 });
